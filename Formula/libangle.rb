@@ -23,8 +23,8 @@ class Libangle < Formula
     mkdir "build" do
       resource("depot_tools").stage do
         path = PATH.new(ENV["PATH"], Dir.pwd)
-        with_env(PATH: path, FORCE_MAC_SDK_MIN: "10.13", CFLAGS:"-Wno-undef-prefix") Do
-          Dir.Chdir(buildpath)
+        with_env(PATH: path, FORCE_MAC_SDK_MIN: "10.13", CFLAGS:"-Wno-undef-prefix") do
+          Dir.chdir(buildpath)
 
           system "python2", "scripts/bootstrap.py"
           system "gclient", "sync"
