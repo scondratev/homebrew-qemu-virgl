@@ -23,7 +23,7 @@ class Libangle < Formula
     mkdir "build" do
       resource("depot_tools").stage do
         path = PATH.new(ENV["PATH"], Dir.pwd)
-        with_env(PATH: path, FORCE_MAC_SDK_MIN: "10.13") do
+        with_env(PATH: path, FORCE_MAC_SDK_MIN: "10.13", CFLAGS="-Wno-undef-prefix") do
           Dir.chdir(buildpath)
 
           system "python2", "scripts/bootstrap.py"
@@ -31,7 +31,7 @@ class Libangle < Formula
           if Hardware::CPU.arm?
             system "gn", "gen", "--args=use_custom_libcxx=false target_cpu=\"arm64\"", "./angle_build"
           else
-            system "gn", "gen", "--args=use_custom_libcxx=false cflags=\"-Wno-undef-prefix\"", "./angle_build"
+            system "gn", "gen", "--args=use_custom_libcxx=false", "./angle_build"
           end
           system "ninja", "-C", "angle_build"
           lib.install "angle_build/libabsl.dylib"
