@@ -3126,7 +3126,7 @@ new file mode 100644
 index 0000000000..062ba2091e
 --- /dev/null
 +++ b/net/vmnet-macos.c
-@@ -0,0 +1,382 @@
+@@ -0,0 +1,365 @@
 +/*
 + * vmnet.framework backed netdev for macOS 10.15+ hosts
 + *
@@ -3288,23 +3288,6 @@ index 0000000000..062ba2091e
 +        vmnet_operation_mode_key,
 +        mode
 +    );
-+
-+    if (mode == VMNET_HOST_MODE || mode == VMNET_SHARED_MODE) {
-+        /* Pass the DHCP configuration to vmnet, if the user provided one */
-+        NetdevVmnetModeOptionsHostOrShared mode_opts = vmnet_opts->u.host;
-+        if (mode_opts.has_dhcp_start_address) {
-+            /* All DHCP arguments are available, as per the checks above */
-+            xpc_dictionary_set_string(interface_desc,
-+                                      vmnet_start_address_key,
-+                                      mode_opts.dhcp_start_address);
-+            xpc_dictionary_set_string(interface_desc,
-+                                      vmnet_end_address_key,
-+                                      mode_opts.dhcp_end_address);
-+            xpc_dictionary_set_string(interface_desc,
-+                                      vmnet_subnet_mask_key,
-+                                      mode_opts.dhcp_subnet_mask);
-+        }
-+    }
 +
 +    return interface_desc;
 +}
