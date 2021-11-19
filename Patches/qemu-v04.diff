@@ -3126,7 +3126,7 @@ new file mode 100644
 index 0000000000..062ba2091e
 --- /dev/null
 +++ b/net/vmnet-macos.c
-@@ -0,0 +1,399 @@
+@@ -0,0 +1,382 @@
 +/*
 + * vmnet.framework backed netdev for macOS 10.15+ hosts
 + *
@@ -3337,9 +3337,7 @@ index 0000000000..062ba2091e
 +    uuid_string_t vmnet_iface_uuid = {0};
 +    __block uuid_string_t *vmnet_iface_uuid_ptr = &vmnet_iface_uuid;
 +    /* These are only provided in VMNET_HOST_MODE and VMNET_SHARED_MODE */
-+    bool vmnet_provides_dhcp_info = (
-+        vmnet_opts->mode == VMNET_OPERATING_MODE_HOST ||
-+        vmnet_opts->mode == VMNET_OPERATING_MODE_SHARED);
++    bool vmnet_provides_dhcp_info = false;
 +    __block const char *vmnet_subnet_mask = NULL;
 +    __block const char *vmnet_dhcp_range_start = NULL;
 +    __block const char *vmnet_dhcp_range_end = NULL;
@@ -3382,21 +3380,6 @@ index 0000000000..062ba2091e
 +        );
 +        uuid_unparse_upper(iface_uuid, *vmnet_iface_uuid_ptr);
 +
-+        /* If we're in a mode that provides DHCP info, read it out now */
-+        if (vmnet_provides_dhcp_info) {
-+            vmnet_dhcp_range_start = strdup(xpc_dictionary_get_string(
-+                interface_param,
-+                vmnet_start_address_key
-+            ));
-+            vmnet_dhcp_range_end = strdup(xpc_dictionary_get_string(
-+                interface_param,
-+                vmnet_end_address_key
-+            ));
-+            vmnet_subnet_mask = strdup(xpc_dictionary_get_string(
-+                interface_param,
-+                vmnet_subnet_mask_key
-+            ));
-+        }
 +        dispatch_semaphore_signal(vmnet_iface_sem);
 +    });
 +
