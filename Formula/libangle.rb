@@ -5,13 +5,6 @@ class Libangle < Formula
   version "20210315.1"
   license "BSD-3-Clause"
 
-  bottle do
-    root_url "https://github.com/knazarov/homebrew-qemu-virgl/releases/download/libangle-20210315.1"
-    sha256 cellar: :any, arm64_big_sur: "0e7a61000a6c4e7f8050184c8b92a6c432f612a85e2c72d54c3888f18635fd61"
-    sha256 cellar: :any, big_sur:       "e9aa9442083ef1eb5b3e760170d941b1ab4d8df521d97155afdf307619bd6351"
-    sha256 cellar: :any, catalina:      "e9aa9442083ef1eb5b3e760170d941b1ab4d8df521d97155afdf307619bd6351"
-  end
-
   depends_on "meson" => :build
   depends_on "ninja" => :build
 
@@ -19,15 +12,16 @@ class Libangle < Formula
     url "https://chromium.googlesource.com/chromium/tools/depot_tools.git", revision: "8e2667e04d9282b6cb24e1086a246247036393c5"
   end
 
+
   def install
     mkdir "build" do
       resource("depot_tools").stage do
         path = PATH.new(ENV["PATH"], Dir.pwd)
-        with_env(PATH: path, FORCE_MAC_SDK_MIN: "10.13", CFLAGS:"-Wno-undef-prefix") do
+        with_env(PATH: path, FORCE_MAC_SDK_MIN: "10.13") do
           Dir.chdir(buildpath)
-
           system "python2", "scripts/bootstrap.py"
           system "gclient", "sync"
+          inreplace "build/config/mac/BUILD.gn", "common_mac_flags = []", 'common_mac_flags = [ "-mlinker-version=450", "-DTARGET_OS_MACCATALYST=0", "-D_LIBCPP_DISABLE_DEPRECATION_WARNINGS" ]'
           if Hardware::CPU.arm?
             system "gn", "gen", "--args=use_custom_libcxx=false target_cpu=\"arm64\"", "./angle_build"
           else
@@ -57,3 +51,20 @@ class Libangle < Formula
     system "true"
   end
 end
+
+__END__
+diff --git a/build/config/mac/BUILD.gn b/build/config/mac/BUILD.gn
+index 0fad7261e..f2fb7e748 100644
+--- a/build/config/mac/BUILD.gn
++++ b/build/config/mac/BUILD.gn
+@@ -13,7 +13,7 @@ import("//build/toolchain/rbe.gni")
+ # is applied to all targets. It is here to separate out the logic.
+ config("compiler") {
+   # These flags are shared between the C compiler and linker.
+-  common_mac_flags = []
++  common_mac_flags = [ "-mlinker-version=450", "-DTARGET_OS_MACCATALYST=0", "-D_LIBCPP_DISABLE_DEPRECATION_WARNINGS" ]
+ 
+   # CPU architecture.
+   if (current_cpu == "x64") {
+
+  
